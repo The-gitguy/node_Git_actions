@@ -1,6 +1,6 @@
-name: Deploy Nodejs app to Ec2 server
+name: Deploy Nodejs app to EC2 server
 
-on :
+on:
   push:
     branches:
       - main
@@ -8,20 +8,30 @@ on :
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Deploy to EC2
+      # Step 1: Copy files to EC2
+      - name: Copy files to EC2
         uses: easingthemes/ssh-deploy@v2.1.5
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ubuntu
-          REMOTE_USER: ${{ secrets.SERVER_IP }}
-          TARGET: /home/ubuntu/node_Git_actions
+          REMOTE_HOST: ${{ secrets.SERVER_IP }}
+          REMOTE_USER: ubuntu
+          REMOTE_PORT: 22
+          SOURCE: "./"
+          TARGET: "/home/ubuntu/node_Git_actions"
+
+      # Step 2: Run docker on EC2
+      - name: Execute remote commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/node_Git_actions
-            git pull
+            docker compose down
             docker compose up -d --build
-
-    
