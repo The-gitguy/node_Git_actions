@@ -1,0 +1,27 @@
+name: Deploy Nodejs app to Ec2 server
+
+on :
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to EC2
+        uses: easingthemes/ssh-deploy@v2.1.5
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote-user: ubuntu
+          server-ip: ${{ secrets.SERVER_IP }}
+          remote-path: /home/ubuntu/node_Git_actions
+          script: |
+            cd /home/ubuntu/node_Git_actions
+            git pull
+            docker compose up -d --build
+
+    

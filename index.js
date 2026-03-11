@@ -5,7 +5,7 @@ const PORT = process.env.PORT ?? 8080
 
 app.get('/', (req, res) => {
    return  res.json({
-        message: 'welcome to git actions demo'
+        message: 'welcome to git actions demo, also made changes and commited  '
     })
 } )  
 
